@@ -1,0 +1,44 @@
+// This file is BASED ON part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: project03starter/a/PC.hdl
+
+/**
+ * A 16-bit counter with load and reset control bits.
+ * if      (reset[t] == 1) out[t+1] = 0
+ * else if (load[t] == 1)  out[t+1] = in[t]
+ * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+ * else                    out[t+1] = out[t]
+ */
+
+CHIP PC {
+    IN in[16],load,inc,reset;
+    OUT out[16];
+
+    PARTS:
+    // Something to start you off: you need *two* 8-bit registers
+    
+    
+
+    Inc8(in=currentLow, out=lowInc);
+    Inc8(in=currentHigh, out=highInc);
+
+    Mux8(a=false, b=lowInc, sel=inc, out=lowIncOut);
+    Mux8(a=false, b=highInc, sel=inc, out=highIncOut);
+
+    Mux8(a=lowIncOut, b=in[0..7], sel=load, out=lowLoadOut);
+    Mux8(a=highIncOut, b=in[8..15], sel=load, out=highLoadOut);
+
+    Mux8(a=lowLoadOut, b=false, sel=reset, out=lowToLoad);
+    Mux8(a=highLoadOut, b=false, sel=reset, out=highToLoad);
+
+    Or(a=load,b=reset, out=loadOrReset);
+    Or(a=loadOrReset,b=inc, out=loadOut);
+
+    Register(in=lowToLoad, load=loadOut,  out=currentLow);
+    Register(in=highToLoad,  load=loadOut, out=currentHigh);
+
+    Or8(a=currentLow,b=currentLow ,out=out[0..7]);  
+    Or8(a=currentHigh,b=currentHigh ,out=out[8..15]);  
+
+}
